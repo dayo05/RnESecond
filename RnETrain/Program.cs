@@ -114,9 +114,9 @@ class Dset: Dataset
         return new()
         {
             {"data", tensor(CV.ReadImage(iname).Select(x => x / 255.0f).ToList(), new long[]{1, 60, 60}, ScalarType.Float32, requiresGrad: true)},
-            {"humi", humi.ToTensor(requiresGrad: true)},
-            {"temp", temp.ToTensor(requiresGrad: true)},
-            {"label", double.Parse(splited[^2]).ToTensor(requiresGrad: true)}
+            {"humi", tensor(new[]{humi}, new long[]{1}, ScalarType.Float32, requiresGrad: true)},
+            {"temp", tensor(new[]{temp}, new long[]{1}, ScalarType.Float32, requiresGrad: true)},
+            {"label", tensor(new[]{double.Parse(splited[^2])}, new long[]{1}, ScalarType.Float32, requiresGrad: true)}
         };
     }
 
