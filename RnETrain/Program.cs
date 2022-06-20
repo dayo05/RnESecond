@@ -1,26 +1,37 @@
 ﻿using RnE;
 using TorchSharp;
+
+using static System.Linq.Enumerable;
 using static TorchSharp.torch;
 using static TorchSharp.torch.nn;
 using static TorchSharp.torch.utils.data;
 
 CV.Initialize();
 
-//Dset.GetDset("/home/dayo/dsets");
-var ds = new Dset("/home/dayo/dsets");
-var dl = new DataLoader(ds, 32, true);
-foreach(var x in dl)
-    Console.WriteLine(x["data"]);
-/*
-var tt = zeros(1, 1, 60, 60, dtype: ScalarType.Float32, requiresGrad: true);
-var model = new RnEModel();
-model.forward(new Dictionary<string, Tensor>
+var train_data = new Dset("/home/dayo/dsets");
+var train = new DataLoader(train_data, 32, true, device: CUDA);
+
+var model = (RnEModel) new RnEModel().to(CUDA);
+var cri = functional.mse_loss();
+var opt = optim.Adam(model.parameters(), lr: 0.01);
+foreach (var epoch in Range(1, 10000))
 {
-    {"data", tt},
-    {"humi", 35.0f.ToTensor(requiresGrad: true).reshape(1, 1)},
-    {"temp", 27.4f.ToTensor(requiresGrad: true).reshape(1, 1)}
-});
-*/
+    if(epoch == 300)
+        foreach (var g in opt.ParamGroups)
+            g.LearningRate = 0.001;
+    var avg_cost = 0.0;
+    foreach (var x in train)
+    {
+        opt.zero_grad();
+        var o = model.forward(x);
+        var cost = cri(o, x["label"]);
+        cost.backward();
+        opt.step();
+
+        avg_cost += cost.item<float>() / train.Count;
+    }
+    Console.WriteLine(avg_cost);
+}
 
 class RnEModel : Module
 {
