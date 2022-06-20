@@ -7,8 +7,8 @@ using static TorchSharp.torch.utils.data;
 CV.Initialize();
 
 //Dset.GetDset("/home/dayo/dsets");
-var ds = new Dset("/home/dayo/dsets");
-var dl = new DataLoader(ds, 32, true);
+var ds = new Dset("/home/dayo/datasets/rne/train");
+var dl = new DataLoader(ds, 32, true, device: CUDA);
 foreach(var x in dl)
     Console.WriteLine(x["data"]);
 /*
@@ -62,7 +62,6 @@ class RnEModel : Module
     
     public RnEModel() : base("rne")
     {
-        
     }
 
     public Tensor forward(Dictionary<string, Tensor> tl)
