@@ -73,7 +73,8 @@ class RnEModel : Module
     
     public RnEModel() : base("rne")
     {
-        
+        RegisterComponents();
+        to(CUDA);
     }
 
     public Tensor forward(Dictionary<string, Tensor> tl)
