@@ -8,8 +8,10 @@ using static TorchSharp.torch.utils.data;
 
 CV.Initialize();
 
-var train_data = new Dset("/home/dayo/dsets");
+var train_data = new Dset("/home/dayo/datasets/rne/train");
+var test_data = new Dset("/home/dayo/datasets/rne/test");
 var train = new DataLoader(train_data, 32, true, device: CUDA);
+var test = new DataLoader(test_data, 64, false, device: CUDA);
 
 var model = (RnEModel) new RnEModel().to(CUDA);
 var cri = functional.mse_loss();
@@ -31,6 +33,16 @@ foreach (var epoch in Range(1, 10000))
         avg_cost += cost.cpu().item<float>() / train.Count;
     }
     Console.WriteLine(avg_cost);
+    avg_cost = 0.0;
+    using (no_grad())
+    {
+        foreach (var x in test)
+        {
+            var o = model.forward(x);
+            var cost = cri(o, x["label"]);
+            avg_cost += cost.cpu().item<float>() / test.Count;
+        }
+    }
 }
 
 class RnEModel : Module
