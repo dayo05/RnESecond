@@ -28,7 +28,7 @@ foreach (var epoch in Range(1, 10000))
         cost.backward();
         opt.step();
 
-        avg_cost += cost.item<float>() / train.Count;
+        avg_cost += cost.cpu().item<float>() / train.Count;
     }
     Console.WriteLine(avg_cost);
 }
@@ -85,8 +85,7 @@ class RnEModel : Module
                     layer5.forward(layer4.forward(layer3.forward(layer2.forward(layer1.forward(tl["data"])))))
                         .flatten(1),
                     tl["humi"], tl["temp"]
-                }, 1))
-            .print(TensorStringStyle.Metadata);
+                }, 1));
     }
 }
 
