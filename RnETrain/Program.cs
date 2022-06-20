@@ -79,7 +79,7 @@ class RnEModel : Module
 
     public Tensor forward(Dictionary<string, Tensor> tl)
     {
-        fc.forward(cat(
+        return fc.forward(cat(
                 new[]
                 {
                     layer5.forward(layer4.forward(layer3.forward(layer2.forward(layer1.forward(tl["data"])))))
@@ -87,8 +87,6 @@ class RnEModel : Module
                     tl["humi"], tl["temp"]
                 }, 1))
             .print(TensorStringStyle.Metadata);
-
-        return tl["data"];
     }
 }
 
