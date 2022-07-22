@@ -1,6 +1,5 @@
 ﻿using RnE;
 using TorchSharp;
-
 using static System.Linq.Enumerable;
 using static TorchSharp.torch;
 using static TorchSharp.torch.nn;
@@ -14,34 +13,52 @@ var train = new DataLoader(train_data, 32, true, device: CUDA);
 var test = new DataLoader(test_data, 64, false, device: CUDA);
 
 var model = (RnEModel) new RnEModel().to(CUDA);
+
+model.load("rneModel.model");
 var cri = functional.mse_loss();
-var opt = optim.Adam(model.parameters(), lr: 0.01);
-foreach (var epoch in Range(1, 10000))
+var opt = optim.Adam(model.parameters(), lr: 0.0001);
+
+var min_loss = 0.5;
+foreach (var epoch in Range(1, 1000))
 {
+    var avg_cost = 0.0;
+    /*
+    if(epoch == 30)
+	foreach(var g in opt.ParamGroups)
+	    g.LearningRate = 0.00001;
     if(epoch == 300)
         foreach (var g in opt.ParamGroups)
-            g.LearningRate = 0.001;
-    var avg_cost = 0.0;
+            g.LearningRate = 0.000001;
     foreach (var x in train)
     {
         opt.zero_grad();
-        var o = model.forward(x);
+        var o = model.forward(x["data"], cat(new[] {x["humi"], x["temp"]}, 1));
         var cost = cri(o, x["label"]);
         cost.backward();
         opt.step();
 
         avg_cost += cost.cpu().item<float>() / train.Count;
     }
-    Console.WriteLine(avg_cost);
-    avg_cost = 0.0;
+    */
+    var avg_val_cost = 0.0;
+    var avg_dist = 0.0;
     using (no_grad())
     {
         foreach (var x in test)
         {
-            var o = model.forward(x);
+            //var o = model.forward(x);
+            var o = model.forward(x["data"], cat(new[] {x["humi"], x["temp"]}, 1));
             var cost = cri(o, x["label"]);
-            avg_cost += cost.cpu().item<float>() / test.Count;
+            avg_val_cost += cost.cpu().item<float>() / test.Count;
+	    avg_dist += (x["label"] - o).abs().mean().cpu().item<float>() / test.Count;
         }
+    }
+    Console.WriteLine($"{avg_cost},{avg_val_cost},{avg_dist}");
+    if (avg_dist < min_loss)
+    {
+        min_loss = avg_dist;
+        model.save("rneModel.model");
+        Console.WriteLine("Save model!");
     }
 }
 
@@ -89,15 +106,20 @@ class RnEModel : Module
         to(CUDA);
     }
 
-    public Tensor forward(Dictionary<string, Tensor> tl)
+    public override Tensor forward(Tensor x, Tensor y)
     {
         return fc.forward(cat(
-                new[]
-                {
-                    layer5.forward(layer4.forward(layer3.forward(layer2.forward(layer1.forward(tl["data"])))))
-                        .flatten(1),
-                    tl["humi"], tl["temp"]
-                }, 1));
+            new[]
+            {
+                layer5.forward(layer4.forward(layer3.forward(layer2.forward(layer1.forward(x)))))
+                    .flatten(1),
+                y
+            }, 1));
+    }
+
+    public Tensor forward(Dictionary<string, Tensor> tl)
+    {
+        return forward(tl["data"], cat(new[] {tl["humi"], tl["temp"]}, 1));
     }
 }
 

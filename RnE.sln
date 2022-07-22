@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RnETrain", "RnETrain\RnETra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuffle", "Shuffle\Shuffle.csproj", "{CF33991C-D9CC-4E5B-B717-937E15DC57EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RnETest", "RnETest\RnETest.csproj", "{9AE8EEBD-8461-4B18-A233-874FF190B6B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{CF33991C-D9CC-4E5B-B717-937E15DC57EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF33991C-D9CC-4E5B-B717-937E15DC57EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF33991C-D9CC-4E5B-B717-937E15DC57EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AE8EEBD-8461-4B18-A233-874FF190B6B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AE8EEBD-8461-4B18-A233-874FF190B6B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AE8EEBD-8461-4B18-A233-874FF190B6B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AE8EEBD-8461-4B18-A233-874FF190B6B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

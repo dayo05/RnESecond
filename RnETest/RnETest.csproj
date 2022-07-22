@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="pythonnet_netstandard_py39_linux" Version="2.5.2" />
       <PackageReference Include="TorchSharp-cuda-linux" Version="0.97.0" />
     </ItemGroup>
 

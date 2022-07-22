@@ -39,7 +39,7 @@ public static class CV
         crop1 = create_mat();
         crop2 = create_mat();
         
-        foreach (var x in Range(0, 14))
+        foreach (var x in Range(0, 9))
             read_frame(vc1, mat1);
     }
 
@@ -61,10 +61,25 @@ public static class CV
 
         resize(mat1, 640, 480);
         crop(mat2, mat2, 11, 6, 360, 274);
-        
+
         b ??= new byte[get_width(mat1) * get_height(mat1) * get_channel(mat1)];
+        
         Marshal.Copy(get_image(mat1), b, 0, get_width(mat1) * get_height(mat1) * get_channel(mat1));
         
+        return b;
+    }
+
+    public static byte[] GetDlFrame(int x, int y, int w, int h)
+    {
+        var fx = ConvertAxis((x, y));
+        (int x, int y) fw = (h * 288 / 929 * 1520 / 480, h * 288 / 929 * 1520 / 480);
+        var cloned = clone_mat(mat2);
+        crop(cloned, cloned, fx.x, fx.y, fw.x, fw.y);
+        if (validate_mat(cloned) != 0) return null;
+        resize(cloned, 60, 60);
+        grayscale(cloned);
+        var b = new byte[get_width(cloned) * get_height(cloned) * get_channel(cloned)];
+        Marshal.Copy(get_image(cloned), b, 0, get_width(cloned) * get_height(cloned) * get_channel(cloned));
         return b;
     }
 
@@ -86,8 +101,6 @@ public static class CV
         var fw = SetMinAsZero(ConvertAxis((w, h)));
         crop(mat2, crop2, fx.x, fx.y, fw.x, fw.y);
         save_image(crop2, $"data/2/{ix}_ir.png");
-        //Console.WriteLine($"{fx.x} {fx.y} {fw.x} {fw.y}");
-        
         ix++;
     }
 
@@ -104,7 +117,7 @@ public static class CV
         image_show(mat2, "mat2");
     }
 
-    public static (int x, int y) ConvertAxis((int x, int y) k) => (k.x * 360 / 640, k.y * 274 / 480);
+    public static (int x, int y) ConvertAxis((int x, int y) k) => ((k.x - 171) * 360 / 289, (k.y - 82) * 274 / 293);
 
     [DllImport("RnENative")]
     static extern IntPtr image_read(IntPtr mat, string path);
@@ -136,7 +149,12 @@ public static class CV
     static extern int get_total_frame(IntPtr mat);
     [DllImport("RnENative")]
     static extern double get_fps(IntPtr mat);
-
     [DllImport("RnENative")]
     static extern int get_total_time(IntPtr vc);
+    [DllImport("RnENative")]
+    static extern void grayscale(IntPtr mat);
+    [DllImport("RnENative")]
+    static extern IntPtr clone_mat(IntPtr mat);
+    [DllImport("RnENative")]
+    static extern int validate_mat(IntPtr mat);
 }
